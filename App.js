@@ -11,8 +11,18 @@ function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="get-started">
-        <Stack.Screen name="get-started" component={GetStarted}></Stack.Screen>
-        <Stack.Screen name="Home" component={HomeScreen}></Stack.Screen>
+        <Stack.Screen
+          name="get-started"
+          component={GetStarted}
+          options={{
+            headerShown: false,
+          }}></Stack.Screen>
+        <Stack.Screen
+          name="Home"
+          component={HomeScreen}
+          options={{
+            title: 'Chat',
+          }}></Stack.Screen>
       </Stack.Navigator>
     </NavigationContainer>
   );
