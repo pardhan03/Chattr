@@ -6,14 +6,31 @@ import {
   FlatList,
   TouchableOpacity,
 } from 'react-native';
-import React from 'react';
+import React, {useDebugValue, useEffect, useState} from 'react';
 import LinearGradient from 'react-native-linear-gradient';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import UserCard from '../components/UserCard';
 import {userData} from '../assets/utils/constant';
 import {useNavigation} from '@react-navigation/native';
+import firestore from '@react-native-firebase/firestore';
+
 const HomeScreen = () => {
+  const [user, setUser] = useState([]);
+
   const navigation = useNavigation();
+
+  const getUsers = async () => {
+    try {
+      const usersSnapshot = await firestore().collection('chattr').get();
+      const usersData = usersSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setUser(usersData);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const renderItems = ({item}) => (
     <TouchableOpacity
@@ -21,6 +38,10 @@ const HomeScreen = () => {
       <UserCard gender={item?.gender} name={item?.name} />
     </TouchableOpacity>
   );
+
+  useEffect(() => {
+    getUsers();
+  }, []);
   return (
     <View style={{flex: 1}}>
       <LinearGradient
@@ -39,7 +60,7 @@ const HomeScreen = () => {
         </View>
       </LinearGradient>
       <FlatList
-        data={userData}
+        data={user}
         keyExtractor={item => item.id}
         renderItem={renderItems}
       />

@@ -1,10 +1,28 @@
 import {StyleSheet, Text, View, Image, TextInput} from 'react-native';
-import React from 'react';
+import React, {useEffect} from 'react';
 import {useNavigation} from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Icon from 'react-native-vector-icons/dist/Entypo';
 
+import firestore from '@react-native-firebase/firestore';
+
 const ChatScreen = ({route}) => {
+  const getUsers = async () => {
+    try {
+      const usersSnapshot = await firestore().collection('chattr').get();
+      const usersData = usersSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      console.log('Users in chattr collection:', usersData);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const userDocument = firestore().collection('Users').doc('1');
+  console.log(userDocument);
+
   const {user} = route?.params;
 
   const navigation = useNavigation();
@@ -13,6 +31,10 @@ const ChatScreen = ({route}) => {
     user?.gender === 'he'
       ? require('../assets/Images/user.png')
       : require('../assets/Images/she_user.png');
+
+  useEffect(() => {
+    getUsers();
+  }, []);
   return (
     <View style={styles.container}>
       <View style={styles.userDetailHeader}>
