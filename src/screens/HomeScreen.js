@@ -1,12 +1,25 @@
-import {StyleSheet, Text, View, TextInput, FlatList} from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  TextInput,
+  FlatList,
+  TouchableOpacity,
+} from 'react-native';
 import React from 'react';
 import LinearGradient from 'react-native-linear-gradient';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import UserCard from '../components/UserCard';
 import {userData} from '../assets/utils/constant';
+import {useNavigation} from '@react-navigation/native';
 const HomeScreen = () => {
+  const navigation = useNavigation();
+
   const renderItems = ({item}) => (
-    <UserCard gender={item?.gender} name={item?.name} />
+    <TouchableOpacity
+      onPress={() => navigation.navigate('userChat', {user: item})}>
+      <UserCard gender={item?.gender} name={item?.name} />
+    </TouchableOpacity>
   );
   return (
     <View style={{flex: 1}}>
@@ -38,7 +51,7 @@ export default HomeScreen;
 
 const styles = StyleSheet.create({
   container: {
-    paddingTop: 50,
+    paddingTop: 20,
     paddingHorizontal: 16,
     paddingBottom: 20,
   },

@@ -4,6 +4,7 @@ import GetStarted from './src/screens/GetStarted';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import HomeScreen from './src/screens/HomeScreen';
+import ChatScreen from './src/screens/ChatScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -23,6 +24,13 @@ function App() {
           options={{
             title: 'Chat',
           }}></Stack.Screen>
+        <Stack.Screen
+          name="userChat"
+          component={ChatScreen}
+          options={{
+            headerShown: false,
+          }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );
