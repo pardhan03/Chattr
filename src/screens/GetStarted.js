@@ -7,9 +7,11 @@ import {
 } from 'react-native';
 import React from 'react';
 import Icon from 'react-native-vector-icons/dist/Entypo';
-
+import {useNavigation} from '@react-navigation/native';
 const {height, width} = Dimensions.get('window');
 const GetStarted = () => {
+  const navigation = useNavigation();
+
   return (
     <View style={styles.container}>
       <View style={styles.iconContainer}>
@@ -25,7 +27,11 @@ const GetStarted = () => {
           connections.
         </Text>
       </View>
-      <TouchableOpacity style={styles.button}>
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => {
+          navigation.navigate('Home');
+        }}>
         <Text style={styles.buttonText}>Get Started</Text>
       </TouchableOpacity>
     </View>
