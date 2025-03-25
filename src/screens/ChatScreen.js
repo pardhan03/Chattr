@@ -1,31 +1,24 @@
-import {StyleSheet, Text, View, Image, TextInput} from 'react-native';
-import React, {useEffect} from 'react';
+import React, {useState, useEffect} from 'react';
+import {
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  TextInput,
+  TouchableOpacity,
+  FlatList,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import Icon from 'react-native-vector-icons/dist/Entypo';
-
 import firestore from '@react-native-firebase/firestore';
 
 const ChatScreen = ({route}) => {
-  const getUsers = async () => {
-    try {
-      const usersSnapshot = await firestore().collection('chattr').get();
-      const usersData = usersSnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      console.log('Users in chattr collection:', usersData);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const userDocument = firestore().collection('Users').doc('1');
-  console.log(userDocument);
-
   const {user} = route?.params;
-
   const navigation = useNavigation();
+  const [messages, setMessages] = useState([]);
+  const [inputText, setInputText] = useState('');
 
   const userImage =
     user?.gender === 'he'
@@ -33,8 +26,37 @@ const ChatScreen = ({route}) => {
       : require('../assets/Images/she_user.png');
 
   useEffect(() => {
-    getUsers();
+    const unsubscribe = firestore()
+      .collection('chats')
+      .orderBy('createdAt', 'asc')
+      .onSnapshot(snapshot => {
+        setMessages(
+          snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data(),
+          })),
+        );
+      });
+
+    return () => unsubscribe();
   }, []);
+
+  const sendMessage = async () => {
+    if (inputText.trim() === '') return;
+
+    const newMessage = {
+      text: inputText,
+      createdAt: firestore.FieldValue.serverTimestamp(),
+      user: {
+        id: user?.id,
+        name: user?.name,
+      },
+    };
+
+    await firestore().collection('chats').add(newMessage);
+    setInputText('');
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.userDetailHeader}>
@@ -49,12 +71,6 @@ const ChatScreen = ({route}) => {
           <Image style={styles.userImage} source={userImage} />
           <View>
             <Text style={styles.userName}>{user?.name}</Text>
-            <Icon
-              name="dot-single"
-              size={32}
-              color="#2BB54D"
-              style={styles.dot}
-            />
           </View>
         </View>
         <View style={styles.callContainer}>
@@ -62,20 +78,41 @@ const ChatScreen = ({route}) => {
           <Ionicons name="videocam-outline" color="#000" size={24} />
         </View>
       </View>
-      <View style={styles.sendContainer}>
-        <View style={{width: '90%'}}>
-          <TextInput
-            placeholder="Your Message..."
-            style={styles.messageInput}
-          />
-        </View>
-        <Ionicons
-          name="send"
-          color="#6157DE"
-          size={28}
-          style={styles.sendIcon}
+
+      <FlatList
+        data={messages}
+        keyExtractor={item => item.id}
+        renderItem={({item}) => (
+          <View
+            style={[
+              styles.messageBubble,
+              item.user.id === user?.id
+                ? styles.myMessage
+                : styles.otherMessage,
+            ]}>
+            <Text style={styles.messageText}>{item.text}</Text>
+          </View>
+        )}
+      />
+
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.sendContainer}>
+        <TextInput
+          placeholder="Your Message..."
+          style={styles.messageInput}
+          value={inputText}
+          onChangeText={setInputText}
         />
-      </View>
+        <TouchableOpacity onPress={sendMessage}>
+          <Ionicons
+            name="send"
+            color="#6157DE"
+            size={28}
+            style={styles.sendIcon}
+          />
+        </TouchableOpacity>
+      </KeyboardAvoidingView>
     </View>
   );
 };
@@ -114,18 +151,37 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     gap: 12,
   },
+  messageBubble: {
+    maxWidth: '80%',
+    padding: 10,
+    borderRadius: 10,
+    marginVertical: 5,
+  },
+  myMessage: {
+    alignSelf: 'flex-end',
+    backgroundColor: '#6157DE',
+    marginRight: 10,
+  },
+  otherMessage: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#ddd',
+    marginLeft: 10,
+  },
+  messageText: {
+    color: '#fff',
+  },
   sendContainer: {
-    flex: 1,
     flexDirection: 'row',
-    alignItems: 'flex-end',
-    gap: 10,
-    paddingVertical: 10,
-    paddingHorizontal: 10,
+    alignItems: 'center',
+    padding: 10,
+    backgroundColor: '#fff',
   },
   messageInput: {
+    flex: 1,
     borderWidth: 1,
     borderRadius: 30,
     paddingLeft: 20,
+    marginRight: 10,
   },
   sendIcon: {
     marginBottom: 10,
