@@ -5,6 +5,7 @@ import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import HomeScreen from './src/screens/HomeScreen';
 import ChatScreen from './src/screens/ChatScreen';
+import AuthScreen from './src/screens/AuthScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -15,6 +16,12 @@ function App() {
         <Stack.Screen
           name="get-started"
           component={GetStarted}
+          options={{
+            headerShown: false,
+          }}></Stack.Screen>
+        <Stack.Screen
+          name="Auth"
+          component={AuthScreen}
           options={{
             headerShown: false,
           }}></Stack.Screen>

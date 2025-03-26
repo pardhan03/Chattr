@@ -30,7 +30,7 @@ const GetStarted = () => {
       <TouchableOpacity
         style={styles.button}
         onPress={() => {
-          navigation.navigate('Home');
+          navigation.navigate('Auth');
         }}>
         <Text style={styles.buttonText}>Get Started</Text>
       </TouchableOpacity>
