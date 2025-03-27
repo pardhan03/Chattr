@@ -25,13 +25,6 @@ const AuthScreen = () => {
 
   const navigation = useNavigation();
 
-  //   console.log(
-  //     account
-  //       .createEmailPasswordSession('pardhanmanish7887@gmail.com', 'Pardhan@123')
-  //       .then(res => {
-  //         console.log(res);
-  //       }),
-  //   );
   const handleAuth = async () => {
     if (!email || !password) {
       Alert.alert('Error', 'Please fill in all fields');
@@ -40,11 +33,11 @@ const AuthScreen = () => {
     setLoading(true);
     try {
       if (isSignUp) {
-        await account.create('unique()', email, password);
+        await account.create(email, password);
         Alert.alert('Success', 'Account created! Please log in.');
         navigation.navigate('Login');
       } else {
-        await account.createEmailSession(email, password);
+        await account.createEmailPasswordSession(email, password);
         Alert.alert('Success', 'Logged in successfully!');
         navigation.navigate('Home');
       }
@@ -52,24 +45,6 @@ const AuthScreen = () => {
       Alert.alert('Error', error.message);
     }
     setLoading(false);
-  };
-
-  const signUpUser = async (email, password) => {
-    if (!email || !password) {
-      return {success: false, error: 'Email and password are required'};
-    }
-
-    try {
-      const user = await account.create(ID.unique(), email, password);
-      console.log('User created:', user);
-      navigation.navigate('Home');
-      return {success: true, user};
-    } catch (error) {
-      console.log('Signup Error:', error.message);
-      return {success: false, error: error.message};
-    } finally {
-      console.log('called the sign user');
-    }
   };
 
   return (
@@ -99,7 +74,7 @@ const AuthScreen = () => {
         secureTextEntry
         style={styles.input}
       />
-      <TouchableOpacity onPress={signUpUser} style={styles.button}>
+      <TouchableOpacity onPress={handleAuth} style={styles.button}>
         <Text style={styles.buttonText}>
           {loading ? 'Processing...' : isSignUp ? 'Sign Up' : 'Login'}
         </Text>
